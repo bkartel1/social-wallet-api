@@ -347,11 +347,13 @@ Returns the DB entry that was created.
                    (with-error-responses blockchains query
                      (fn [blockchain query]
                        (if (= (-> query :blockchain keyword) :mongo)
-                         (lib/create-transaction blockchain
-                                                 (:from-id query)
-                                                 (:amount query)
-                                                 (:to-id query)
-                                                 query)
+                         (f/if-let-ok? [amount (BigDecimal. (:amount query))]
+                           (lib/create-transaction blockchain
+                                                   (:from-id query)
+                                                   amount
+                                                   (:to-id query)
+                                                   query)
+                           (f/fail "The amount is not valid."))
                          (f/fail "Transactions can only be made for DBs. For BLockchain please look at Deposit and Withdraw"))))))
 
     (context (path-with-version "/withdraws") []

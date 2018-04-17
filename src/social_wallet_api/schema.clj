@@ -116,7 +116,7 @@
   (assoc Query
          (s/required-key :from-id)    s/Any
          (s/required-key :to-id)      s/Any
-         (s/required-key :amount)     s/Num
+         (s/required-key :amount)     s/Str
          (s/optional-key :tags)      [s/Str]))
 
 (s/defschema NewWithdraw
