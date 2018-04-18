@@ -21,9 +21,12 @@
                      (after :contents (h/destroy))]
                     (facts "Check different doubles"
                            (for-all
-                            [rand-double (gen/double* {:min Satoshi :max 9999999999999999.99999999})]
+                            [rand-double (gen/double* {:min Satoshi
+                                                       :max 9999999999999999.99999999
+                                                       :Nan? false
+                                                       :infinite? false})]
                             {:num-tests 100
-                             :max-size 20
+                             #_:max-size #_20
                              #_:seed #_1510160943861}
                             (fact "A really large number with 16,8 digits"
                                   (let [amount (str rand-double)  
@@ -34,16 +37,16 @@
                                                   (mock/body  (cheshire/generate-string {:blockchain :mongo
                                                                                          :from-id "test-1"
                                                                                          :to-id "test-2"
-                                                                                         :amount amount
+                                                                                         :amount (log/spy amount)
                                                                                          :tags ["blabla"]}))))
                                        body (parse-body (:body response))]
                                    (:status response) => 200
-                                   (:amount body) => amount)))
+                                   (:amount body) => rand-double)))
                            
 
                            #_(fact "Check other inputs"
                                  (for-all
-                                  [other (gen/one-of [gen/string gen/boolean gen/uuid gen/byte])]
+                                  [other (gen/one-of [gen/string gen/boolean gen/uuid gen/byte ])]
                                   #_{:num-tests 100
                                      :max-size 20
                                      #_:seed #_1510160943861}
