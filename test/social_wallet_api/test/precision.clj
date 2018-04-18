@@ -44,31 +44,32 @@
                              #_:seed #_1510160943861}
                             (fact "A really large number with 16,8 digits"
                                   (let [amount (str rand-double)  
-                                       response (new-transaction-request amount)
-                                       body (parse-body (:body response))]
-                                   (:status response) => 200
-                                  (:amount body) => rand-double)))
+                                        response (new-transaction-request amount)
+                                        body (parse-body (:body response))]
+                                    (:status response) => 200
+                                    (:amount body) => rand-double)))
                            
 
                            #_(fact "Check other inputs"
-                                 (for-all
-                                  [other (gen/one-of [gen/string gen/boolean gen/uuid gen/byte ])]
-                                  #_{:num-tests 100
-                                     :max-size 20
-                                     #_:seed #_1510160943861}
-                                  (fact "A really large number with 16,8 digits"
-                                        (let [amount other 
-                                              response (h/app
-                                                        (->
-                                                         (mock/request :post "/wallet/v1/transactions/new")
-                                                         (mock/content-type "application/json")
-                                                         (mock/body  (cheshire/generate-string {:blockchain :mongo
-                                                                                                :from-id "test-1"
-                                                                                                :to-id "test-2"
-                                                                                                :amount amount
-                                                                                                :tags ["blabla"]}))))
-                                              body (parse-body (:body response))]
-                                          (:status response) => 200
-                                          (:amount body) => amount))))
+                                   (for-all
+                                    [other (gen/one-of [gen/string gen/boolean gen/uuid gen/byte ])]
+                                    #_{:num-tests 100
+                                       :max-size 20
+                                       #_:seed #_1510160943861}
+                                    (fact "A really large number with 16,8 digits"
+                                          (let [amount other 
+                                                response (h/app
+                                                          (->
+                                                           (mock/request :post "/wallet/v1/transactions/new")
+                                                           (mock/content-type "application/json")
+                                                           (mock/body  (cheshire/generate-string {:blockchain :mongo
+                                                                                                  :from-id "test-1"
+                                                                                                  :to-id "test-2"
+                                                                                                  :amount amount
+                                                                                                  :tags ["blabla"]}))))
+                                                body (parse-body (:body response))]
+                                            (:status response) => 400
+                                            (class (:error body)) => String
+                                            (:error body) => "The amount is not valid."))))
                            (fact "Check that the amount returned after the creation of a transanction in mongo is the same as the input one"
-)))
+                                 )))
