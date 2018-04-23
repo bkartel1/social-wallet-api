@@ -58,9 +58,7 @@
                                                        :max int16-fr8
                                                        :NaN? false
                                                        :infinite? false})]
-                            {:num-tests 100
-                             ;:max-size 200
-                             #_:seed #_1510160943861}
+                            {:num-tests 500}
                             (fact "A really large number with 16,8 digits"
                                   (let [amount (str rand-double)  
                                         response (new-transaction-request amount)
