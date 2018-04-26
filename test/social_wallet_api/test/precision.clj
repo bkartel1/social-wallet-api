@@ -14,8 +14,8 @@
 (defn parse-body [body]
   (cheshire/parse-string (slurp body) true))
 
-(def Satoshi 0.00000001)
-(def int16-fr8 (BigDecimal. 9999999999999999.99999999) )
+(def Satoshi (BigDecimal. "0.00000001"))
+(def int16-fr8 (BigDecimal. "9999999999999999.99999999"))
 
 (defn new-transaction-request [amount]
   (h/app
@@ -37,12 +37,13 @@
                      (after :contents (h/destroy))]
                     #_(facts "Check specific amounts" 
                            (fact "Check one Satochi (8 decimal)"
-                                 (let [response (new-transaction-request (str Satoshi))
+                                 (let [response (new-transaction-request (.toString Satoshi))
                                        body (parse-body (:body response))]
                                    (:status response) => 200
                                    (:amount body) => Satoshi
                                    (:amount-text body) => (str Satoshi)
                                    (:amount (get-latest-transaction "test-1")) => Satoshi
+                                   (class (:amount (get-latest-transaction "test-1"))) => java.math.BigDecimal
                                    (:amount-text (get-latest-transaction "test-1")) => (.toString Satoshi)))
                            (fact "16 integer digits and 8 decimal)"
                                  (let [response (new-transaction-request (str int16-fr8))
@@ -67,17 +68,17 @@
                                                          :max int16-fr8
                                                          :NaN? false
                                                          :infinite? false})]
-                              {:num-tests 1}
+                              {:num-tests 100}
                               (fact "Generative tests"
-                                    (let [amount (.toString (BigDecimal. rand-double))  
+                                    (let [amount (.toString (BigDecimal. (.toString (log/spy rand-double))))  
                                           response (new-transaction-request (log/spy amount))
                                           body (parse-body (:body response))
                                           _ (swap! sum-test-2 #(.add % (BigDecimal. rand-double)))]
                                       (:status response) => 200
                                       (:amount body) => rand-double
-                                      (:amount (get-latest-transaction "test-1")) => (BigDecimal. rand-double)
+                                      (:amount (get-latest-transaction "test-1")) => (BigDecimal. amount)
                                       (:amount-text (get-latest-transaction "test-1")) => amount)))
-                             (fact "Balance works properly"
+                             #_(fact "Balance works properly"
                                    (let [response (h/app
                                                    (->
                                                     (mock/request :post "/wallet/v1/balance")
